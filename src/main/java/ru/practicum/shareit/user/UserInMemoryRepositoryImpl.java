@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Repository
-public class UserRepositoryImpl implements UserRepository {
+public class UserInMemoryRepositoryImpl implements UserInMemoryRepository {
 
     private final Map<Long, User> users = new HashMap<>();
     private long lastId = 1;

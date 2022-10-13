@@ -2,7 +2,9 @@ package ru.practicum.shareit.item;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.exception.InvalidCommentException;
 import ru.practicum.shareit.item.exception.ItemNotFoundException;
 import ru.practicum.shareit.user.exception.UserNotFoundException;
 
@@ -45,8 +47,20 @@ public class ItemController {
     }
 
     @GetMapping("/search")
-    public List<ItemDto> search(@RequestHeader("X-Sharer-User-Id") Long userId, @RequestParam String text)
-            throws UserNotFoundException {
+    public List<ItemDto> search(
+            @RequestHeader("X-Sharer-User-Id") Long userId,
+            @RequestParam String text
+    ) throws UserNotFoundException {
         return itemService.search(userId, text);
     }
+
+    @PostMapping("/{itemId}/comment")
+    public CommentDto comment(
+            @RequestHeader("X-Sharer-User-Id") Long userId,
+            @PathVariable Long itemId,
+            @Valid @RequestBody CommentDto commentDto
+    ) throws UserNotFoundException, InvalidCommentException, ItemNotFoundException {
+        return itemService.comment(userId, itemId, commentDto);
+    }
+
 }
