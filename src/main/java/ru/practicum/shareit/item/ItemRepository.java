@@ -10,7 +10,7 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
 
     List<Item> findAllByOwner_Id(Long userId);
 
-    @Query("select it from Item as it " +
+    @Query("from Item as it " +
             "where " +
             "it.available = true " +
             "and " +

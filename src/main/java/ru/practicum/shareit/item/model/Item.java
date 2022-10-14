@@ -7,6 +7,7 @@ import ru.practicum.shareit.user.User;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.Objects;
 
 @Entity
 @Table(name = "items")
@@ -38,12 +39,8 @@ public class Item {
     @JoinColumn(name = "owner_id")
     private User owner;
 
-    @Transient
     @ManyToOne
-    @JoinTable(
-            name = "item_request",
-            joinColumns = @JoinColumn(name = "item_id"),
-            inverseJoinColumns = @JoinColumn(name = "request_id"))
+    @JoinColumn(name = "request_id")
     private ItemRequest request;
 
     @Override
@@ -55,6 +52,6 @@ public class Item {
 
     @Override
     public int hashCode() {
-        return getClass().hashCode();
+        return Objects.hashCode(id);
     }
 }

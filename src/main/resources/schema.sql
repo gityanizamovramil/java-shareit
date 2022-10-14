@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS users, requests, items, bookings, item_request, comments CASCADE;
+DROP TABLE IF EXISTS users, requests, items, bookings, comments CASCADE;
 
 CREATE TABLE IF NOT EXISTS users
 (
@@ -23,14 +23,9 @@ CREATE TABLE IF NOT EXISTS items
     description  VARCHAR NOT NULL,
     is_available BOOLEAN NOT NULL,
     owner_id     BIGINT  NOT NULL,
-    CONSTRAINT fk_items_to_users FOREIGN KEY (owner_id) REFERENCES users (id)
-);
-
-CREATE TABLE IF NOT EXISTS item_request
-(
-    item_id    BIGINT REFERENCES items (id) ON DELETE CASCADE,
-    request_id BIGINT REFERENCES requests (id) ON DELETE CASCADE,
-    PRIMARY KEY (item_id, request_id)
+    request_id   BIGINT,
+    CONSTRAINT fk_items_to_users FOREIGN KEY (owner_id) REFERENCES users (id),
+    CONSTRAINT fk_items_to_requests FOREIGN KEY (request_id) REFERENCES requests (id)
 );
 
 CREATE TABLE IF NOT EXISTS bookings

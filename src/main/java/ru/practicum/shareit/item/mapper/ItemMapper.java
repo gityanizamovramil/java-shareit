@@ -26,6 +26,7 @@ public class ItemMapper {
                 .lastBooking(null)
                 .nextBooking(null)
                 .comments(Collections.emptyList())
+                .request(null)
                 .build();
     }
 
@@ -35,7 +36,7 @@ public class ItemMapper {
                 .name(itemDto.getName())
                 .description(itemDto.getDescription())
                 .available(itemDto.getAvailable())
-                .request(ItemRequest.builder().id(itemDto.getRequest()).build())
+                .request(itemDto.getRequest() == null ? null : ItemRequest.builder().id(itemDto.getRequest()).build())
                 .build();
     }
 

@@ -199,13 +199,10 @@ public class ItemServiceImpl implements ItemService {
         Item item = itemRepository.findById(itemId).orElseThrow(() -> new ItemNotFoundException("item not found"));
         User author = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("user not found"));
         Sort sortDesc = Sort.by(Sort.Direction.DESC, "end");
-        Optional<Booking> booking = bookingRepository
-                .findTop1BookingByItem_IdAndBooker_IdAndEndIsBeforeAndStatusIs(
-                        itemId, userId, LocalDateTime.now(), Status.APPROVED, sortDesc
-                );
-        if (booking.isEmpty()) {
-            throw new InvalidCommentException("no booking for comment");
-        }
+        Booking booking = bookingRepository.findTop1BookingByItem_IdAndBooker_IdAndEndIsBeforeAndStatusIs(
+                itemId, userId, LocalDateTime.now(), Status.APPROVED, sortDesc).orElseThrow(
+                () -> new InvalidCommentException("no booking for comment"));
+
         Comment comment = CommentMapper.toComment(commentDto, item, author, LocalDateTime.now());
         comment = commentRepository.save(comment);
         return CommentMapper.toCommentDto(comment);
