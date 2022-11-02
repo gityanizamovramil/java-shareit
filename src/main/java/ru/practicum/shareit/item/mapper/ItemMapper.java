@@ -1,20 +1,12 @@
 package ru.practicum.shareit.item.mapper;
 
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemInfoDto;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.requests.ItemRequest;
+import ru.practicum.shareit.requests.model.ItemRequest;
 
 import java.util.Collections;
 
 public class ItemMapper {
-
-    public static ItemInfoDto toItemInfoDto(Item item) {
-        return ItemInfoDto.builder()
-                .id(item.getId())
-                .name(item.getName())
-                .build();
-    }
 
     public static ItemDto toItemDto(Item item) {
         return ItemDto.builder()
@@ -22,11 +14,10 @@ public class ItemMapper {
                 .name(item.getName())
                 .description(item.getDescription())
                 .available(item.getAvailable())
-                .request(item.getRequest() != null ? item.getRequest().getId() : null)
+                .requestId(item.getRequest() != null ? item.getRequest().getId() : null)
                 .lastBooking(null)
                 .nextBooking(null)
                 .comments(Collections.emptyList())
-                .request(null)
                 .build();
     }
 
@@ -36,7 +27,7 @@ public class ItemMapper {
                 .name(itemDto.getName())
                 .description(itemDto.getDescription())
                 .available(itemDto.getAvailable())
-                .request(itemDto.getRequest() == null ? null : ItemRequest.builder().id(itemDto.getRequest()).build())
+                .request(itemDto.getRequestId() == null ? null : ItemRequest.builder().id(itemDto.getRequestId()).build())
                 .build();
     }
 
@@ -46,8 +37,8 @@ public class ItemMapper {
                 .name(itemDto.getName() == null ? item.getName() : itemDto.getName())
                 .description(itemDto.getDescription() == null ? item.getDescription() : itemDto.getDescription())
                 .available(itemDto.getAvailable() == null ? item.getAvailable() : itemDto.getAvailable())
-                .request(itemDto.getRequest() == null ?
-                        item.getRequest() : ItemRequest.builder().id(itemDto.getRequest()).build())
+                .request(itemDto.getRequestId() == null ?
+                        item.getRequest() : ItemRequest.builder().id(itemDto.getRequestId()).build())
                 .build();
     }
 }

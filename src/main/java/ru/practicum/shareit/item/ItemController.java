@@ -2,6 +2,7 @@ package ru.practicum.shareit.item;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.booking.exception.PaginationException;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.exception.InvalidCommentException;
@@ -41,17 +42,25 @@ public class ItemController {
         return itemService.get(userId, itemId);
     }
 
+    //pagination
     @GetMapping
-    public List<ItemDto> get(@RequestHeader("X-Sharer-User-Id") Long userId) throws UserNotFoundException {
-        return itemService.get(userId);
+    public List<ItemDto> get(
+            @RequestHeader("X-Sharer-User-Id") Long userId,
+            @RequestParam(defaultValue = "0") Long from,
+            @RequestParam(defaultValue = "10") Long size
+    ) throws UserNotFoundException, PaginationException {
+        return itemService.get(userId, from, size);
     }
 
+    //pagination
     @GetMapping("/search")
     public List<ItemDto> search(
             @RequestHeader("X-Sharer-User-Id") Long userId,
-            @RequestParam String text
-    ) throws UserNotFoundException {
-        return itemService.search(userId, text);
+            @RequestParam String text,
+            @RequestParam(defaultValue = "0") Long from,
+            @RequestParam(defaultValue = "10") Long size
+    ) throws UserNotFoundException, PaginationException {
+        return itemService.search(userId, text, from, size);
     }
 
     @PostMapping("/{itemId}/comment")
