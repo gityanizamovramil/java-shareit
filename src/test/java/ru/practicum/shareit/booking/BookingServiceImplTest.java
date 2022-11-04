@@ -12,6 +12,7 @@ import ru.practicum.shareit.booking.dto.BookingInfoDto;
 import ru.practicum.shareit.booking.exception.*;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.Status;
+import ru.practicum.shareit.common.exception.PaginationException;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.exception.ItemNotFoundException;
 import ru.practicum.shareit.item.model.Item;
@@ -480,7 +481,7 @@ class BookingServiceImplTest {
                 .booker(booker)
                 .status(Status.APPROVED)
                 .build();
-        when(bookingRepository.findAllByBooker_IdOrderByStartDesc(any(), any()))
+        when(bookingRepository.findAllByBooker_Id(any(), any()))
                 .thenReturn(List.of(booking1));
         List<BookingInfoDto> bookingInfoDtoList = bookingService.get(3L, "ALL", 0L, 10L);
         Assertions.assertFalse(bookingInfoDtoList.isEmpty());
@@ -495,7 +496,7 @@ class BookingServiceImplTest {
                 .booker(booker)
                 .status(Status.APPROVED)
                 .build();
-        when(bookingRepository.findAllByBooker_IdAndEndIsBefore(any(), any(), any(), any()))
+        when(bookingRepository.findAllByBooker_IdAndEndIsBefore(any(), any(), any()))
                 .thenReturn(List.of(booking2));
         bookingInfoDtoList = bookingService.get(3L, "PAST", 0L, 10L);
         Assertions.assertFalse(bookingInfoDtoList.isEmpty());
@@ -510,7 +511,7 @@ class BookingServiceImplTest {
                 .booker(booker)
                 .status(Status.APPROVED)
                 .build();
-        when(bookingRepository.findAllByBooker_IdAndStartIsAfter(any(), any(), any(), any()))
+        when(bookingRepository.findAllByBooker_IdAndStartIsAfter(any(), any(), any()))
                 .thenReturn(List.of(booking3));
         bookingInfoDtoList = bookingService.get(3L, "FUTURE", 0L, 10L);
         Assertions.assertFalse(bookingInfoDtoList.isEmpty());
@@ -525,7 +526,7 @@ class BookingServiceImplTest {
                 .booker(booker)
                 .status(Status.APPROVED)
                 .build();
-        when(bookingRepository.findAllByBooker_IdAndStartIsBeforeAndEndIsAfter(any(), any(), any(), any(), any()))
+        when(bookingRepository.findAllByBooker_IdAndStartIsBeforeAndEndIsAfter(any(), any(), any(), any()))
                 .thenReturn(List.of(booking4));
         bookingInfoDtoList = bookingService.get(3L, "CURRENT", 0L, 10L);
         Assertions.assertFalse(bookingInfoDtoList.isEmpty());
@@ -646,7 +647,7 @@ class BookingServiceImplTest {
                 .status(Status.APPROVED)
                 .build();
 
-        when(bookingRepository.findAllByItem_Owner_IdOrderByStartDesc(any(), any()))
+        when(bookingRepository.findAllByItem_Owner_Id(any(), any()))
                 .thenReturn(List.of(booking1));
 
         List<BookingInfoDto> bookingInfoDtoList = bookingService.getByOwner(1L, "ALL", 0L, 10L);
@@ -662,7 +663,7 @@ class BookingServiceImplTest {
                 .booker(booker)
                 .status(Status.APPROVED)
                 .build();
-        when(bookingRepository.findAllByItem_Owner_IdAndEndIsBefore(any(), any(), any(), any()))
+        when(bookingRepository.findAllByItem_Owner_IdAndEndIsBefore(any(), any(), any()))
                 .thenReturn(List.of(booking2));
         bookingInfoDtoList = bookingService.getByOwner(1L, "PAST", 0L, 10L);
         Assertions.assertFalse(bookingInfoDtoList.isEmpty());
@@ -677,7 +678,7 @@ class BookingServiceImplTest {
                 .booker(booker)
                 .status(Status.APPROVED)
                 .build();
-        when(bookingRepository.findAllByItem_Owner_IdAndStartIsAfter(any(), any(), any(), any()))
+        when(bookingRepository.findAllByItem_Owner_IdAndStartIsAfter(any(), any(), any()))
                 .thenReturn(List.of(booking3));
         bookingInfoDtoList = bookingService.getByOwner(1L, "FUTURE", 0L, 10L);
         Assertions.assertFalse(bookingInfoDtoList.isEmpty());
@@ -692,7 +693,7 @@ class BookingServiceImplTest {
                 .booker(booker)
                 .status(Status.APPROVED)
                 .build();
-        when(bookingRepository.findAllByItem_Owner_IdAndStartIsBeforeAndEndIsAfter(any(), any(), any(), any(), any()))
+        when(bookingRepository.findAllByItem_Owner_IdAndStartIsBeforeAndEndIsAfter(any(), any(), any(), any()))
                 .thenReturn(List.of(booking4));
         bookingInfoDtoList = bookingService.getByOwner(1L, "CURRENT", 0L, 10L);
         Assertions.assertFalse(bookingInfoDtoList.isEmpty());

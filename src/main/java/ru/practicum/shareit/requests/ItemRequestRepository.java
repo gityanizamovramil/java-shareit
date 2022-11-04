@@ -1,7 +1,6 @@
 package ru.practicum.shareit.requests;
 
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import ru.practicum.shareit.requests.model.ItemRequest;
 
@@ -14,6 +13,6 @@ public interface ItemRequestRepository extends JpaRepository<ItemRequest, Long> 
 
     Optional<ItemRequest> findItemRequestById(Long id);
 
-    List<ItemRequest> findAllByRequestor_IdIsNot(Long userId, PageRequest pageRequest, Sort sort);
+    List<ItemRequest> findAllByRequestor_IdIsNot(Long userId, PageRequest pageRequest);
 
 }

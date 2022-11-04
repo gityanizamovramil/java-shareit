@@ -1,4 +1,4 @@
-package ru.practicum.shareit.booking.exception;
+package ru.practicum.shareit.common.exception;
 
 public class ErrorResponse {
     private final String error;

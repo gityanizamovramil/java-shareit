@@ -5,6 +5,7 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.requests.model.ItemRequest;
 
 import java.util.Collections;
+import java.util.Optional;
 
 public class ItemMapper {
 
@@ -14,7 +15,7 @@ public class ItemMapper {
                 .name(item.getName())
                 .description(item.getDescription())
                 .available(item.getAvailable())
-                .requestId(item.getRequest() != null ? item.getRequest().getId() : null)
+                .requestId(Optional.ofNullable(item.getRequest()).map(ItemRequest::getId).orElse(null))
                 .lastBooking(null)
                 .nextBooking(null)
                 .comments(Collections.emptyList())
@@ -27,7 +28,8 @@ public class ItemMapper {
                 .name(itemDto.getName())
                 .description(itemDto.getDescription())
                 .available(itemDto.getAvailable())
-                .request(itemDto.getRequestId() == null ? null : ItemRequest.builder().id(itemDto.getRequestId()).build())
+                .request(itemDto.getRequestId() == null ?
+                        null : ItemRequest.builder().id(itemDto.getRequestId()).build())
                 .build();
     }
 

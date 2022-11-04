@@ -7,9 +7,9 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.dto.LastBookingDto;
 import ru.practicum.shareit.booking.dto.NextBookingDto;
-import ru.practicum.shareit.booking.exception.PaginationException;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.Status;
+import ru.practicum.shareit.common.exception.PaginationException;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.exception.InvalidCommentException;
@@ -134,8 +134,6 @@ public class ItemServiceImpl implements ItemService {
         PageRequest pageRequest = PageRequest.of(from.intValue() / size.intValue(), size.intValue());
         List<Item> repoItems = itemRepository.findAllByOwner_Id(userId, pageRequest);
 
-        if (repoItems.isEmpty()) return Collections.emptyList();
-
         List<ItemDto> itemDtoList = repoItems.stream()
                 .map(ItemMapper::toItemDto)
                 .peek(itemDto -> itemDto.setOwner(owner.getId()))
@@ -188,7 +186,8 @@ public class ItemServiceImpl implements ItemService {
 
     //pagination
     @Override
-    public List<ItemDto> search(Long userId, String text, Long from, Long size) throws UserNotFoundException, PaginationException {
+    public List<ItemDto> search(Long userId, String text, Long from, Long size)
+            throws UserNotFoundException, PaginationException {
         User repoUser = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("user not found"));
         if (text.isEmpty()) return Collections.emptyList();
 

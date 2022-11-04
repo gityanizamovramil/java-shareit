@@ -7,10 +7,19 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingInfoDto;
 import ru.practicum.shareit.booking.dto.State;
-import ru.practicum.shareit.booking.exception.*;
+import ru.practicum.shareit.booking.exception.BookingNotFoundException;
+import ru.practicum.shareit.booking.exception.InvalidDateTimeException;
+import ru.practicum.shareit.booking.exception.InvalidStatusException;
+import ru.practicum.shareit.booking.exception.NotAvailableException;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.Status;
+import ru.practicum.shareit.booking.strategy.BookingStateFetchStrategy;
+import ru.practicum.shareit.booking.strategy.StrategyFactoryForBooker;
+import ru.practicum.shareit.booking.strategy.StrategyFactoryForOwner;
+import ru.practicum.shareit.booking.strategy.StrategyName;
+import ru.practicum.shareit.common.exception.PaginationException;
+import ru.practicum.shareit.common.utils.PageRequestManager;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.exception.ItemNotFoundException;
 import ru.practicum.shareit.item.model.Item;
@@ -18,7 +27,6 @@ import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.exception.UserNotFoundException;
 import ru.practicum.shareit.user.model.User;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -34,11 +42,20 @@ public class BookingServiceImpl implements BookingService {
     @Autowired
     private final BookingRepository bookingRepository;
 
+    @Autowired
+    private final StrategyFactoryForOwner strategyFactoryForOwner;
+
+    @Autowired
+    private final StrategyFactoryForBooker strategyFactoryForBooker;
+
     public BookingServiceImpl(
-            UserRepository userRepository, ItemRepository itemRepository, BookingRepository bookingRepository) {
+            UserRepository userRepository, ItemRepository itemRepository, BookingRepository bookingRepository,
+            StrategyFactoryForOwner strategyFactoryForOwner, StrategyFactoryForBooker strategyFactoryForBooker) {
         this.userRepository = userRepository;
         this.itemRepository = itemRepository;
         this.bookingRepository = bookingRepository;
+        this.strategyFactoryForOwner = strategyFactoryForOwner;
+        this.strategyFactoryForBooker = strategyFactoryForBooker;
     }
 
     @Override
@@ -90,35 +107,13 @@ public class BookingServiceImpl implements BookingService {
     public List<BookingInfoDto> get(Long userId, String value, Long from, Long size)
             throws UserNotFoundException, InvalidStatusException, PaginationException {
         State state = validateState(value);
+        StrategyName strategyName = StrategyName.valueOf(state.name());
         User booker = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("user not found"));
         List<Booking> bookings = new ArrayList<>();
-        Sort sort = Sort.by(Sort.Direction.DESC, "start");
-        if (from < 0) throw new PaginationException("paging invalid");
-        if (size <= 0) throw new PaginationException("paging invalid");
-        PageRequest pageRequest = PageRequest.of(from.intValue() / size.intValue(), size.intValue());
-        switch (state) {
-            case PAST:
-                bookings = bookingRepository.findAllByBooker_IdAndEndIsBefore(userId, LocalDateTime.now(), sort, pageRequest);
-                break;
-            case FUTURE:
-                bookings = bookingRepository.findAllByBooker_IdAndStartIsAfter(userId, LocalDateTime.now(), sort, pageRequest);
-                break;
-            case CURRENT:
-                bookings = bookingRepository
-                        .findAllByBooker_IdAndStartIsBeforeAndEndIsAfter(
-                                userId, LocalDateTime.now(), LocalDateTime.now(), sort, pageRequest);
-                break;
-            case WAITING:
-                bookings = bookingRepository.findAllByBooker_IdAndStatus(userId, Status.WAITING, pageRequest);
-                break;
-            case REJECTED:
-                bookings = bookingRepository.findAllByBooker_IdAndStatus(userId, Status.REJECTED, pageRequest);
-                break;
-            default:
-                bookings = bookingRepository.findAllByBooker_IdOrderByStartDesc(userId, pageRequest);
-                break;
-        }
-
+        PageRequest pageReq = PageRequestManager.form(
+                from.intValue(), size.intValue(), Sort.Direction.DESC, "start");
+        BookingStateFetchStrategy strategyForBooker = strategyFactoryForBooker.findStrategy(strategyName);
+        bookings = strategyForBooker.fetch(userId, pageReq);
         return bookings.isEmpty() ? Collections.emptyList() : bookings.stream()
                 .map(BookingMapper::toBookingInfoDto)
                 .collect(Collectors.toList());
@@ -129,35 +124,13 @@ public class BookingServiceImpl implements BookingService {
     public List<BookingInfoDto> getByOwner(Long userId, String value, Long from, Long size)
             throws UserNotFoundException, InvalidStatusException, PaginationException {
         State state = validateState(value);
+        StrategyName strategyName = StrategyName.valueOf(state.name());
         User owner = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("user not found"));
         List<Booking> bookings = new ArrayList<>();
-        Sort sort = Sort.by(Sort.Direction.DESC, "start");
-        if (from < 0) throw new PaginationException("paging invalid");
-        if (size <= 0) throw new PaginationException("paging invalid");
-        PageRequest pageRequest = PageRequest.of(from.intValue() / size.intValue(), size.intValue());
-        switch (state) {
-            case PAST:
-                bookings = bookingRepository.findAllByItem_Owner_IdAndEndIsBefore(userId, LocalDateTime.now(), sort, pageRequest);
-                break;
-            case FUTURE:
-                bookings = bookingRepository.findAllByItem_Owner_IdAndStartIsAfter(userId, LocalDateTime.now(), sort, pageRequest);
-                break;
-            case CURRENT:
-                bookings = bookingRepository
-                        .findAllByItem_Owner_IdAndStartIsBeforeAndEndIsAfter(
-                                userId, LocalDateTime.now(), LocalDateTime.now(), sort, pageRequest);
-                break;
-            case WAITING:
-                bookings = bookingRepository.findAllByItem_Owner_IdAndStatus(userId, Status.WAITING, pageRequest);
-                break;
-            case REJECTED:
-                bookings = bookingRepository.findAllByItem_Owner_IdAndStatus(userId, Status.REJECTED, pageRequest);
-                break;
-            default:
-                bookings = bookingRepository.findAllByItem_Owner_IdOrderByStartDesc(userId, pageRequest);
-                break;
-        }
-
+        PageRequest pageReq = PageRequestManager.form(
+                from.intValue(), size.intValue(), Sort.Direction.DESC, "start");
+        BookingStateFetchStrategy strategyForOwner = strategyFactoryForOwner.findStrategy(strategyName);
+        bookings = strategyForOwner.fetch(userId, pageReq);
         return bookings.isEmpty() ? Collections.emptyList() : bookings.stream()
                 .map(BookingMapper::toBookingInfoDto)
                 .collect(Collectors.toList());

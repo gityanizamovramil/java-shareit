@@ -2,7 +2,11 @@ package ru.practicum.shareit.booking;
 
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingInfoDto;
-import ru.practicum.shareit.booking.exception.*;
+import ru.practicum.shareit.booking.exception.BookingNotFoundException;
+import ru.practicum.shareit.booking.exception.InvalidDateTimeException;
+import ru.practicum.shareit.booking.exception.InvalidStatusException;
+import ru.practicum.shareit.booking.exception.NotAvailableException;
+import ru.practicum.shareit.common.exception.PaginationException;
 import ru.practicum.shareit.item.exception.ItemNotFoundException;
 import ru.practicum.shareit.user.exception.UserNotFoundException;
 

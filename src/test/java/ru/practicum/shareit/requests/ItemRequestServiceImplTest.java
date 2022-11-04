@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import ru.practicum.shareit.booking.exception.PaginationException;
+import ru.practicum.shareit.common.exception.PaginationException;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.requests.dto.ItemRequestDto;
@@ -144,7 +144,7 @@ class ItemRequestServiceImplTest {
 
         List<Item> items = Collections.emptyList();
 
-        when(itemRepository.findAllByRequest_Id(1L))
+        when(itemRepository.findAllByRequest_IdIn(List.of(1L)))
                 .thenReturn(items);
 
         itemRequestDtos = itemRequestService.get(2L);
@@ -162,7 +162,7 @@ class ItemRequestServiceImplTest {
 
         items = List.of(item);
 
-        when(itemRepository.findAllByRequest_Id(1L))
+        when(itemRepository.findAllByRequest_IdIn(List.of(1L)))
                 .thenReturn(items);
 
         itemRequestDtos = itemRequestService.get(2L);
@@ -198,17 +198,17 @@ class ItemRequestServiceImplTest {
 
         List<ItemRequest> itemRequests = new ArrayList<>();
 
-        when(itemRequestRepository.findAllByRequestor_IdIsNot(any(), any(), any()))
+        when(itemRequestRepository.findAllByRequestor_IdIsNot(any(), any()))
                 .thenReturn(itemRequests);
         List<ItemRequestDto> itemRequestDtos = itemRequestService.get(1L, 0L, 10L);
         assertTrue(itemRequestDtos.isEmpty());
 
         itemRequests = List.of(request);
-        when(itemRequestRepository.findAllByRequestor_IdIsNot(any(), any(), any()))
+        when(itemRequestRepository.findAllByRequestor_IdIsNot(any(), any()))
                 .thenReturn(itemRequests);
 
         List<Item> items = Collections.emptyList();
-        when(itemRepository.findAllByRequest_Id(1L))
+        when(itemRepository.findAllByRequest_IdIn(List.of(1L)))
                 .thenReturn(items);
 
         itemRequestDtos = itemRequestService.get(1L, 0L, 10L);
@@ -224,7 +224,7 @@ class ItemRequestServiceImplTest {
                 .build();
         items = List.of(item);
 
-        when(itemRepository.findAllByRequest_Id(1L))
+        when(itemRepository.findAllByRequest_IdIn(List.of(1L)))
                 .thenReturn(items);
 
         itemRequestDtos = itemRequestService.get(1L, 0L, 10L);
