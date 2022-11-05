@@ -1,10 +1,11 @@
-package ru.practicum.shareit.requests;
+package ru.practicum.shareit.requests.model;
 
 import lombok.*;
-import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Entity
 @Table(name = "requests")
@@ -39,6 +40,6 @@ public class ItemRequest {
 
     @Override
     public int hashCode() {
-        return getClass().hashCode();
+        return Objects.hashCode(id);
     }
 }

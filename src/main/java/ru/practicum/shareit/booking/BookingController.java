@@ -8,15 +8,13 @@ import ru.practicum.shareit.booking.exception.BookingNotFoundException;
 import ru.practicum.shareit.booking.exception.InvalidDateTimeException;
 import ru.practicum.shareit.booking.exception.InvalidStatusException;
 import ru.practicum.shareit.booking.exception.NotAvailableException;
+import ru.practicum.shareit.common.exception.PaginationException;
 import ru.practicum.shareit.item.exception.ItemNotFoundException;
 import ru.practicum.shareit.user.exception.UserNotFoundException;
 
 import javax.validation.Valid;
 import java.util.List;
 
-/**
- * // TODO .
- */
 @RestController
 @RequestMapping(path = "/bookings")
 public class BookingController {
@@ -52,20 +50,26 @@ public class BookingController {
         return bookingService.get(userId, bookingId);
     }
 
+    //pagination
     @GetMapping
     public List<BookingInfoDto> get(
             @RequestHeader("X-Sharer-User-Id") Long userId,
-            @RequestParam(defaultValue = "ALL", required = false) String state
-    ) throws UserNotFoundException, InvalidStatusException {
-        return bookingService.get(userId, state);
+            @RequestParam(defaultValue = "ALL") String state,
+            @RequestParam(defaultValue = "0") Long from,
+            @RequestParam(defaultValue = "10") Long size
+    ) throws UserNotFoundException, InvalidStatusException, PaginationException {
+        return bookingService.get(userId, state, from, size);
     }
 
+    //pagination
     @GetMapping("/owner")
     public List<BookingInfoDto> getByOwner(
             @RequestHeader("X-Sharer-User-Id") Long userId,
-            @RequestParam(defaultValue = "ALL", required = false) String state
-    ) throws UserNotFoundException, InvalidStatusException {
-        return bookingService.getByOwner(userId, state);
+            @RequestParam(defaultValue = "ALL") String state,
+            @RequestParam(defaultValue = "0") Long from,
+            @RequestParam(defaultValue = "10") Long size
+    ) throws UserNotFoundException, InvalidStatusException, PaginationException {
+        return bookingService.getByOwner(userId, state, from, size);
     }
 
 }

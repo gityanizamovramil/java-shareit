@@ -1,9 +1,11 @@
+/*
 package ru.practicum.shareit.user;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 import ru.practicum.shareit.user.exception.DuplicateEmailException;
 import ru.practicum.shareit.user.exception.ValidationException;
+import ru.practicum.shareit.user.model.User;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -63,3 +65,4 @@ public class UserInMemoryRepositoryImpl implements UserInMemoryRepository {
         return !duplicateUsers.isEmpty();
     }
 }
+*/

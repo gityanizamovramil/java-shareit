@@ -26,7 +26,7 @@ public class ItemDto {
 
     private Long owner;
 
-    private Long request;
+    private Long requestId;
 
     private LastBookingDto lastBooking;
 

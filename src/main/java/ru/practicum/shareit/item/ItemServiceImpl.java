@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.BookingRepository;
@@ -8,6 +9,7 @@ import ru.practicum.shareit.booking.dto.LastBookingDto;
 import ru.practicum.shareit.booking.dto.NextBookingDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.Status;
+import ru.practicum.shareit.common.exception.PaginationException;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.exception.InvalidCommentException;
@@ -16,9 +18,9 @@ import ru.practicum.shareit.item.mapper.CommentMapper;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.exception.UserNotFoundException;
+import ru.practicum.shareit.user.model.User;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
@@ -74,8 +76,7 @@ public class ItemServiceImpl implements ItemService {
         Item item = ItemMapper.matchItem(itemDto, repoItem);
         item.setOwner(owner);
 
-        itemRepository.save(item);
-        item = itemRepository.findById(itemId).orElseThrow(() -> new ItemNotFoundException("item not found"));
+        item = itemRepository.save(item);
 
         return ItemMapper.toItemDto(item);
     }
@@ -122,11 +123,16 @@ public class ItemServiceImpl implements ItemService {
         return itemDto;
     }
 
+    //pagination
     @Override
-    public List<ItemDto> get(Long userId) throws UserNotFoundException {
+    public List<ItemDto> get(Long userId, Long from, Long size) throws UserNotFoundException, PaginationException {
         User owner = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("user not found"));
-        List<Item> repoItems = itemRepository.findAllByOwner_Id(userId);
-        if (repoItems.isEmpty()) return new ArrayList<>();
+
+        if (from < 0) throw new PaginationException("paging invalid");
+        if (size <= 0) throw new PaginationException("paging invalid");
+
+        PageRequest pageRequest = PageRequest.of(from.intValue() / size.intValue(), size.intValue());
+        List<Item> repoItems = itemRepository.findAllByOwner_Id(userId, pageRequest);
 
         List<ItemDto> itemDtoList = repoItems.stream()
                 .map(ItemMapper::toItemDto)
@@ -178,11 +184,19 @@ public class ItemServiceImpl implements ItemService {
         return itemDtoList;
     }
 
+    //pagination
     @Override
-    public List<ItemDto> search(Long userId, String text) throws UserNotFoundException {
+    public List<ItemDto> search(Long userId, String text, Long from, Long size)
+            throws UserNotFoundException, PaginationException {
         User repoUser = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("user not found"));
         if (text.isEmpty()) return Collections.emptyList();
-        List<Item> searchItems = itemRepository.searchAvailableByText(text);
+
+        if (from < 0) throw new PaginationException("paging invalid");
+        if (size <= 0) throw new PaginationException("paging invalid");
+
+        PageRequest pageRequest = PageRequest.of(from.intValue() / size.intValue(), size.intValue());
+        List<Item> searchItems = itemRepository.searchAvailableByText(text, pageRequest);
+
         List<ItemDto> searchItemDto = new ArrayList<>();
         for (Item item : searchItems) {
             ItemDto itemDto = ItemMapper.toItemDto(item);

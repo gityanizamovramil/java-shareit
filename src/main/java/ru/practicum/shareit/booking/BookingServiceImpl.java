@@ -1,6 +1,7 @@
 package ru.practicum.shareit.booking;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
@@ -13,14 +14,19 @@ import ru.practicum.shareit.booking.exception.NotAvailableException;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.Status;
+import ru.practicum.shareit.booking.strategy.BookingStateFetchStrategy;
+import ru.practicum.shareit.booking.strategy.StrategyFactoryForBooker;
+import ru.practicum.shareit.booking.strategy.StrategyFactoryForOwner;
+import ru.practicum.shareit.booking.strategy.StrategyName;
+import ru.practicum.shareit.common.exception.PaginationException;
+import ru.practicum.shareit.common.utils.PageRequestManager;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.exception.ItemNotFoundException;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.exception.UserNotFoundException;
+import ru.practicum.shareit.user.model.User;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -36,16 +42,25 @@ public class BookingServiceImpl implements BookingService {
     @Autowired
     private final BookingRepository bookingRepository;
 
+    @Autowired
+    private final StrategyFactoryForOwner strategyFactoryForOwner;
+
+    @Autowired
+    private final StrategyFactoryForBooker strategyFactoryForBooker;
+
     public BookingServiceImpl(
-            UserRepository userRepository, ItemRepository itemRepository, BookingRepository bookingRepository) {
+            UserRepository userRepository, ItemRepository itemRepository, BookingRepository bookingRepository,
+            StrategyFactoryForOwner strategyFactoryForOwner, StrategyFactoryForBooker strategyFactoryForBooker) {
         this.userRepository = userRepository;
         this.itemRepository = itemRepository;
         this.bookingRepository = bookingRepository;
+        this.strategyFactoryForOwner = strategyFactoryForOwner;
+        this.strategyFactoryForBooker = strategyFactoryForBooker;
     }
 
     @Override
-    public BookingInfoDto create(Long userId, BookingDto bookingDto
-    ) throws UserNotFoundException, ItemNotFoundException, NotAvailableException, InvalidDateTimeException {
+    public BookingInfoDto create(Long userId, BookingDto bookingDto)
+            throws UserNotFoundException, ItemNotFoundException, NotAvailableException, InvalidDateTimeException {
         Long itemId = bookingDto.getItemId();
         Item item = itemRepository.findById(itemId).orElseThrow(() -> new ItemNotFoundException("item not found"));
         if (!item.getAvailable()) throw new NotAvailableException("item is not available");
@@ -63,8 +78,8 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public BookingInfoDto approve(Long userId, Long bookingId, Boolean approved
-    ) throws BookingNotFoundException, UserNotFoundException, InvalidStatusException {
+    public BookingInfoDto approve(Long userId, Long bookingId, Boolean approved)
+            throws BookingNotFoundException, UserNotFoundException, InvalidStatusException {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new BookingNotFoundException("booking not found"));
         Item item = booking.getItem();
@@ -87,69 +102,35 @@ public class BookingServiceImpl implements BookingService {
         return BookingMapper.toBookingInfoDto(booking);
     }
 
+    //pagination
     @Override()
-    public List<BookingInfoDto> get(Long userId, String value) throws UserNotFoundException, InvalidStatusException {
+    public List<BookingInfoDto> get(Long userId, String value, Long from, Long size)
+            throws UserNotFoundException, InvalidStatusException, PaginationException {
         State state = validateState(value);
+        StrategyName strategyName = StrategyName.valueOf(state.name());
         User booker = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("user not found"));
         List<Booking> bookings = new ArrayList<>();
-        Sort sort = Sort.by(Sort.Direction.DESC, "start");
-        switch (state) {
-            case ALL:
-                bookings = bookingRepository.findAllByBooker_IdOrderByStartDesc(userId);
-                break;
-            case PAST:
-                bookings = bookingRepository.findAllByBooker_IdAndEndIsBefore(userId, LocalDateTime.now(), sort);
-                break;
-            case FUTURE:
-                bookings = bookingRepository.findAllByBooker_IdAndStartIsAfter(userId, LocalDateTime.now(), sort);
-                break;
-            case CURRENT:
-                bookings = bookingRepository
-                        .findAllByBooker_IdAndStartIsBeforeAndEndIsAfter(
-                                userId, LocalDateTime.now(), LocalDateTime.now(), sort);
-                break;
-            case WAITING:
-                bookings = bookingRepository.findAllByBooker_IdAndStatus(userId, Status.WAITING);
-                break;
-            case REJECTED:
-                bookings = bookingRepository.findAllByBooker_IdAndStatus(userId, Status.REJECTED);
-                break;
-        }
-
+        PageRequest pageReq = PageRequestManager.form(
+                from.intValue(), size.intValue(), Sort.Direction.DESC, "start");
+        BookingStateFetchStrategy strategyForBooker = strategyFactoryForBooker.findStrategy(strategyName);
+        bookings = strategyForBooker.fetch(userId, pageReq);
         return bookings.isEmpty() ? Collections.emptyList() : bookings.stream()
                 .map(BookingMapper::toBookingInfoDto)
                 .collect(Collectors.toList());
     }
 
+    //pagination
     @Override
-    public List<BookingInfoDto> getByOwner(Long userId, String value) throws UserNotFoundException, InvalidStatusException {
+    public List<BookingInfoDto> getByOwner(Long userId, String value, Long from, Long size)
+            throws UserNotFoundException, InvalidStatusException, PaginationException {
         State state = validateState(value);
+        StrategyName strategyName = StrategyName.valueOf(state.name());
         User owner = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("user not found"));
         List<Booking> bookings = new ArrayList<>();
-        Sort sort = Sort.by(Sort.Direction.DESC, "start");
-        switch (state) {
-            case ALL:
-                bookings = bookingRepository.findAllByItem_Owner_IdOrderByStartDesc(userId);
-                break;
-            case PAST:
-                bookings = bookingRepository.findAllByItem_Owner_IdAndEndIsBefore(userId, LocalDateTime.now(), sort);
-                break;
-            case FUTURE:
-                bookings = bookingRepository.findAllByItem_Owner_IdAndStartIsAfter(userId, LocalDateTime.now(), sort);
-                break;
-            case CURRENT:
-                bookings = bookingRepository
-                        .findAllByItem_Owner_IdAndStartIsBeforeAndEndIsAfter(
-                                userId, LocalDateTime.now(), LocalDateTime.now(), sort);
-                break;
-            case WAITING:
-                bookings = bookingRepository.findAllByItem_Owner_IdAndStatus(userId, Status.WAITING);
-                break;
-            case REJECTED:
-                bookings = bookingRepository.findAllByItem_Owner_IdAndStatus(userId, Status.REJECTED);
-                break;
-        }
-
+        PageRequest pageReq = PageRequestManager.form(
+                from.intValue(), size.intValue(), Sort.Direction.DESC, "start");
+        BookingStateFetchStrategy strategyForOwner = strategyFactoryForOwner.findStrategy(strategyName);
+        bookings = strategyForOwner.fetch(userId, pageReq);
         return bookings.isEmpty() ? Collections.emptyList() : bookings.stream()
                 .map(BookingMapper::toBookingInfoDto)
                 .collect(Collectors.toList());

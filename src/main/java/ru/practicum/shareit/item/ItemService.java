@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item;
 
+import ru.practicum.shareit.common.exception.PaginationException;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.exception.InvalidCommentException;
@@ -16,9 +17,9 @@ public interface ItemService {
 
     ItemDto get(Long userId, Long itemId) throws ItemNotFoundException, UserNotFoundException;
 
-    List<ItemDto> get(Long userId) throws UserNotFoundException;
+    List<ItemDto> get(Long userId, Long from, Long size) throws UserNotFoundException, PaginationException;
 
-    List<ItemDto> search(Long userId, String text) throws UserNotFoundException;
+    List<ItemDto> search(Long userId, String text, Long from, Long size) throws UserNotFoundException, PaginationException;
 
     CommentDto comment(Long userId, Long itemId, CommentDto commentDto) throws ItemNotFoundException, UserNotFoundException, InvalidCommentException;
 }
