@@ -26,7 +26,18 @@
     <modules>
         <module>gateway</module> <!-- added from template-->
         <module>server</module> <!-- added from template-->
+        <module>common</module>
     </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>ru.practicum</groupId>
+                <artifactId>shareit-common</artifactId>
+                <version>0.0.1-SNAPSHOT</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <build>
         <!--<resources>
