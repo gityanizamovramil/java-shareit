@@ -1,8 +1,8 @@
-package ru.practicum.shareit.common.utils;
+package ru.practicum.shareit.utils;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import ru.practicum.shareit.common.exception.PaginationException;
+import ru.practicum.shareit.common.PaginationException;
 
 public class PageRequestManager {
 
