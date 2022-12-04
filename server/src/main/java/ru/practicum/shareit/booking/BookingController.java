@@ -12,7 +12,6 @@ import ru.practicum.shareit.common.PaginationException;
 import ru.practicum.shareit.item.exception.ItemNotFoundException;
 import ru.practicum.shareit.user.exception.UserNotFoundException;
 
-import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -27,18 +26,16 @@ public class BookingController {
     }
 
     @PostMapping
-    public BookingInfoDto create(
-            @RequestHeader("X-Sharer-User-Id") Long userId,
-            @Valid @RequestBody BookingDto bookingDto
+    public BookingInfoDto create(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                 @RequestBody BookingDto bookingDto
     ) throws UserNotFoundException, ItemNotFoundException, InvalidDateTimeException, NotAvailableException {
         return bookingService.create(userId, bookingDto);
     }
 
     @PatchMapping("/{bookingId}")
-    public BookingInfoDto approve(
-            @RequestHeader("X-Sharer-User-Id") Long userId,
-            @PathVariable Long bookingId,
-            @RequestParam Boolean approved
+    public BookingInfoDto approve(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                  @PathVariable Long bookingId,
+                                  @RequestParam Boolean approved
     ) throws UserNotFoundException, BookingNotFoundException, InvalidStatusException {
         return bookingService.approve(userId, bookingId, approved);
     }
@@ -52,22 +49,20 @@ public class BookingController {
 
     //pagination
     @GetMapping
-    public List<BookingInfoDto> get(
-            @RequestHeader("X-Sharer-User-Id") Long userId,
-            @RequestParam(defaultValue = "ALL") String state,
-            @RequestParam(defaultValue = "0") Long from,
-            @RequestParam(defaultValue = "10") Long size
+    public List<BookingInfoDto> get(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                    @RequestParam String state,
+                                    @RequestParam Long from,
+                                    @RequestParam Long size
     ) throws UserNotFoundException, InvalidStatusException, PaginationException {
         return bookingService.get(userId, state, from, size);
     }
 
     //pagination
     @GetMapping("/owner")
-    public List<BookingInfoDto> getByOwner(
-            @RequestHeader("X-Sharer-User-Id") Long userId,
-            @RequestParam(defaultValue = "ALL") String state,
-            @RequestParam(defaultValue = "0") Long from,
-            @RequestParam(defaultValue = "10") Long size
+    public List<BookingInfoDto> getByOwner(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                           @RequestParam String state,
+                                           @RequestParam Long from,
+                                           @RequestParam Long size
     ) throws UserNotFoundException, InvalidStatusException, PaginationException {
         return bookingService.getByOwner(userId, state, from, size);
     }

@@ -157,7 +157,7 @@ class BookingControllerTest {
         when(bookingService.get(1L, "ALL", 0L, 10L))
                 .thenReturn(List.of(bookingInfoDto));
 
-        mvc.perform(get("/bookings/")
+        mvc.perform(get("/bookings?state=ALL&from=0&size=10")
                         .header("X-Sharer-User-Id", 1L)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -176,7 +176,7 @@ class BookingControllerTest {
         when(bookingService.getByOwner(1L, "ALL", 0L, 10L))
                 .thenReturn(List.of(bookingInfoDto));
 
-        mvc.perform(get("/bookings/owner")
+        mvc.perform(get("/bookings/owner?state=ALL&from=0&size=10")
                         .header("X-Sharer-User-Id", 1L)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())

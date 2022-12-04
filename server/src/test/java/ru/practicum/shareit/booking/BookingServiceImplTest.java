@@ -14,8 +14,8 @@ import ru.practicum.shareit.booking.exception.InvalidDateTimeException;
 import ru.practicum.shareit.booking.exception.InvalidStatusException;
 import ru.practicum.shareit.booking.exception.NotAvailableException;
 import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.common.Status;
 import ru.practicum.shareit.common.PaginationException;
+import ru.practicum.shareit.common.Status;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.exception.ItemNotFoundException;
 import ru.practicum.shareit.item.model.Item;
@@ -401,9 +401,6 @@ class BookingServiceImplTest {
                 () -> bookingService.approve(1L, 1L, true));
         assertThat(invalidStatusException.getMessage(), is("no change allowed"));
 
-        invalidStatusException = Assertions.assertThrows(InvalidStatusException.class,
-                () -> bookingService.get(1L, "value", 0L, 10L));
-        assertThat(invalidStatusException.getMessage(), is("Unknown state: value"));
     }
 
     @Test

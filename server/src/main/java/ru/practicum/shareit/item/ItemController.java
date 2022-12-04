@@ -9,7 +9,6 @@ import ru.practicum.shareit.item.exception.InvalidCommentException;
 import ru.practicum.shareit.item.exception.ItemNotFoundException;
 import ru.practicum.shareit.user.exception.UserNotFoundException;
 
-import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -24,50 +23,50 @@ public class ItemController {
     }
 
     @PostMapping
-    public ItemDto create(@RequestHeader("X-Sharer-User-Id") Long userId, @Valid @RequestBody ItemDto itemDto)
-            throws UserNotFoundException {
+    public ItemDto create(@RequestHeader("X-Sharer-User-Id") Long userId,
+                          @RequestBody ItemDto itemDto
+    ) throws UserNotFoundException {
         return itemService.create(userId, itemDto);
     }
 
     @PatchMapping("/{itemId}")
-    public ItemDto update(
-            @RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long itemId, @RequestBody ItemDto itemDto)
-            throws ItemNotFoundException, UserNotFoundException {
+    public ItemDto update(@RequestHeader("X-Sharer-User-Id") Long userId,
+                          @PathVariable Long itemId,
+                          @RequestBody ItemDto itemDto
+    ) throws ItemNotFoundException, UserNotFoundException {
         return itemService.update(userId, itemId, itemDto);
     }
 
     @GetMapping("/{itemId}")
-    public ItemDto get(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long itemId)
-            throws ItemNotFoundException, UserNotFoundException {
+    public ItemDto get(@RequestHeader("X-Sharer-User-Id") Long userId,
+                       @PathVariable Long itemId
+    ) throws ItemNotFoundException, UserNotFoundException {
         return itemService.get(userId, itemId);
     }
 
     //pagination
     @GetMapping
-    public List<ItemDto> get(
-            @RequestHeader("X-Sharer-User-Id") Long userId,
-            @RequestParam(defaultValue = "0") Long from,
-            @RequestParam(defaultValue = "10") Long size
+    public List<ItemDto> get(@RequestHeader("X-Sharer-User-Id") Long userId,
+                             @RequestParam Long from,
+                             @RequestParam Long size
     ) throws UserNotFoundException, PaginationException {
         return itemService.get(userId, from, size);
     }
 
     //pagination
     @GetMapping("/search")
-    public List<ItemDto> search(
-            @RequestHeader("X-Sharer-User-Id") Long userId,
-            @RequestParam String text,
-            @RequestParam(defaultValue = "0") Long from,
-            @RequestParam(defaultValue = "10") Long size
+    public List<ItemDto> search(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                @RequestParam String text,
+                                @RequestParam Long from,
+                                @RequestParam Long size
     ) throws UserNotFoundException, PaginationException {
         return itemService.search(userId, text, from, size);
     }
 
     @PostMapping("/{itemId}/comment")
-    public CommentDto comment(
-            @RequestHeader("X-Sharer-User-Id") Long userId,
-            @PathVariable Long itemId,
-            @Valid @RequestBody CommentDto commentDto
+    public CommentDto comment(@RequestHeader("X-Sharer-User-Id") Long userId,
+                              @PathVariable Long itemId,
+                              @RequestBody CommentDto commentDto
     ) throws UserNotFoundException, InvalidCommentException, ItemNotFoundException {
         return itemService.comment(userId, itemId, commentDto);
     }

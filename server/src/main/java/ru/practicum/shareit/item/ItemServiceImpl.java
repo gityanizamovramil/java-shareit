@@ -8,8 +8,8 @@ import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.dto.LastBookingDto;
 import ru.practicum.shareit.booking.dto.NextBookingDto;
 import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.common.Status;
 import ru.practicum.shareit.common.PaginationException;
+import ru.practicum.shareit.common.Status;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.exception.InvalidCommentException;
@@ -42,11 +42,11 @@ public class ItemServiceImpl implements ItemService {
     @Autowired
     private final CommentRepository commentRepository;
 
-    public ItemServiceImpl(
-            UserRepository userRepository,
-            ItemRepository itemRepository,
-            BookingRepository bookingRepository,
-            CommentRepository commentRepository) {
+    public ItemServiceImpl(UserRepository userRepository,
+                           ItemRepository itemRepository,
+                           BookingRepository bookingRepository,
+                           CommentRepository commentRepository
+    ) {
         this.userRepository = userRepository;
         this.itemRepository = itemRepository;
         this.bookingRepository = bookingRepository;
@@ -128,9 +128,6 @@ public class ItemServiceImpl implements ItemService {
     public List<ItemDto> get(Long userId, Long from, Long size) throws UserNotFoundException, PaginationException {
         User owner = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("user not found"));
 
-        if (from < 0) throw new PaginationException("paging invalid");
-        if (size <= 0) throw new PaginationException("paging invalid");
-
         PageRequest pageRequest = PageRequest.of(from.intValue() / size.intValue(), size.intValue());
         List<Item> repoItems = itemRepository.findAllByOwner_Id(userId, pageRequest);
 
@@ -190,9 +187,6 @@ public class ItemServiceImpl implements ItemService {
             throws UserNotFoundException, PaginationException {
         User repoUser = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("user not found"));
         if (text.isEmpty()) return Collections.emptyList();
-
-        if (from < 0) throw new PaginationException("paging invalid");
-        if (size <= 0) throw new PaginationException("paging invalid");
 
         PageRequest pageRequest = PageRequest.of(from.intValue() / size.intValue(), size.intValue());
         List<Item> searchItems = itemRepository.searchAvailableByText(text, pageRequest);

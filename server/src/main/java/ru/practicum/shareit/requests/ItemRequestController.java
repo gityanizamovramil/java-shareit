@@ -7,7 +7,6 @@ import ru.practicum.shareit.requests.dto.ItemRequestDto;
 import ru.practicum.shareit.requests.exception.ItemRequestNotFoundException;
 import ru.practicum.shareit.user.exception.UserNotFoundException;
 
-import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -22,8 +21,8 @@ public class ItemRequestController {
     }
 
     @PostMapping
-    public ItemRequestDto create(
-            @RequestHeader("X-Sharer-User-Id") Long userId, @Valid @RequestBody ItemRequestDto itemRequestDto
+    public ItemRequestDto create(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                 @RequestBody ItemRequestDto itemRequestDto
     ) throws UserNotFoundException {
         return itemRequestService.create(userId, itemRequestDto);
     }
@@ -34,17 +33,16 @@ public class ItemRequestController {
     }
 
     @GetMapping("/all")
-    public List<ItemRequestDto> get(
-            @RequestHeader("X-Sharer-User-Id") Long userId,
-            @RequestParam(defaultValue = "0") Long from,
-            @RequestParam(defaultValue = "10") Long size
+    public List<ItemRequestDto> get(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                    @RequestParam Long from,
+                                    @RequestParam Long size
     ) throws UserNotFoundException, PaginationException {
         return itemRequestService.get(userId, from, size);
     }
 
     @GetMapping("/{requestId}")
-    public ItemRequestDto get(
-            @RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long requestId
+    public ItemRequestDto get(@RequestHeader("X-Sharer-User-Id") Long userId,
+                              @PathVariable Long requestId
     ) throws UserNotFoundException, ItemRequestNotFoundException {
         return itemRequestService.get(userId, requestId);
     }

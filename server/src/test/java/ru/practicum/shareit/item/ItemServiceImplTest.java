@@ -9,7 +9,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.common.Status;
-import ru.practicum.shareit.common.PaginationException;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.exception.InvalidCommentException;
@@ -431,36 +430,6 @@ class ItemServiceImplTest {
 
         itemDtos = itemService.get(2L, 0L, 10L);
         assertThat(itemDtos, is(notNullValue()));
-    }
-
-    @Test
-    void throwPaginationException() {
-        User owner = User.builder()
-                .id(2L)
-                .name("user2")
-                .email("user2@email.com")
-                .build();
-
-        when(userRepository.findById(2L))
-                .thenReturn(Optional.of(owner));
-
-        PaginationException invalidPageParamsException;
-
-        invalidPageParamsException = Assertions.assertThrows(PaginationException.class,
-                () -> itemService.get(2L, -1L, 10L));
-        assertThat(invalidPageParamsException.getMessage(), is("paging invalid"));
-
-        invalidPageParamsException = Assertions.assertThrows(PaginationException.class,
-                () -> itemService.get(2L, 0L, 0L));
-        assertThat(invalidPageParamsException.getMessage(), is("paging invalid"));
-
-        invalidPageParamsException = Assertions.assertThrows(PaginationException.class,
-                () -> itemService.search(2L, "text", -1L, 10L));
-        assertThat(invalidPageParamsException.getMessage(), is("paging invalid"));
-
-        invalidPageParamsException = Assertions.assertThrows(PaginationException.class,
-                () -> itemService.search(2L, "text", 0L, 0L));
-        assertThat(invalidPageParamsException.getMessage(), is("paging invalid"));
     }
 
     @Test

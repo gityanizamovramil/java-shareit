@@ -6,26 +6,26 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingInfoDto;
-import ru.practicum.shareit.common.State;
 import ru.practicum.shareit.booking.exception.BookingNotFoundException;
 import ru.practicum.shareit.booking.exception.InvalidDateTimeException;
 import ru.practicum.shareit.booking.exception.InvalidStatusException;
 import ru.practicum.shareit.booking.exception.NotAvailableException;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.common.Status;
 import ru.practicum.shareit.booking.strategy.BookingStateFetchStrategy;
 import ru.practicum.shareit.booking.strategy.StrategyFactoryForBooker;
 import ru.practicum.shareit.booking.strategy.StrategyFactoryForOwner;
 import ru.practicum.shareit.booking.strategy.StrategyName;
 import ru.practicum.shareit.common.PaginationException;
-import ru.practicum.shareit.utils.PageRequestManager;
+import ru.practicum.shareit.common.State;
+import ru.practicum.shareit.common.Status;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.exception.ItemNotFoundException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.exception.UserNotFoundException;
 import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.utils.PageRequestManager;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -106,7 +106,7 @@ public class BookingServiceImpl implements BookingService {
     @Override()
     public List<BookingInfoDto> get(Long userId, String value, Long from, Long size)
             throws UserNotFoundException, InvalidStatusException, PaginationException {
-        State state = validateState(value);
+        State state = State.valueOf(value);
         StrategyName strategyName = StrategyName.valueOf(state.name());
         User booker = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("user not found"));
         List<Booking> bookings = new ArrayList<>();
@@ -123,7 +123,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<BookingInfoDto> getByOwner(Long userId, String value, Long from, Long size)
             throws UserNotFoundException, InvalidStatusException, PaginationException {
-        State state = validateState(value);
+        State state = State.valueOf(value);
         StrategyName strategyName = StrategyName.valueOf(state.name());
         User owner = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("user not found"));
         List<Booking> bookings = new ArrayList<>();
@@ -136,7 +136,7 @@ public class BookingServiceImpl implements BookingService {
                 .collect(Collectors.toList());
     }
 
-    private State validateState(String value) throws InvalidStatusException {
+    /*private State validateState(String value) throws InvalidStatusException {
         State state = State.ALL;
         try {
             state = State.valueOf(value);
@@ -144,5 +144,5 @@ public class BookingServiceImpl implements BookingService {
             throw new InvalidStatusException("Unknown state: " + value);
         }
         return state;
-    }
+    }*/
 }

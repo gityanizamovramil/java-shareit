@@ -5,7 +5,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.common.PaginationException;
-import ru.practicum.shareit.utils.PageRequestManager;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
@@ -17,6 +16,7 @@ import ru.practicum.shareit.requests.model.ItemRequest;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.exception.UserNotFoundException;
 import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.utils.PageRequestManager;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
@@ -36,8 +36,10 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     @Autowired
     private final ItemRepository itemRepository;
 
-    public ItemRequestServiceImpl(ItemRequestRepository itemRequestRepository, UserRepository userRepository,
-                                  ItemRepository itemRepository) {
+    public ItemRequestServiceImpl(ItemRequestRepository itemRequestRepository,
+                                  UserRepository userRepository,
+                                  ItemRepository itemRepository
+    ) {
         this.itemRequestRepository = itemRequestRepository;
         this.userRepository = userRepository;
         this.itemRepository = itemRepository;

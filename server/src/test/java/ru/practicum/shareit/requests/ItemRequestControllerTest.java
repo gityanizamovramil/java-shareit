@@ -130,7 +130,7 @@ class ItemRequestControllerTest {
         when(itemRequestService.get(3L, 0L, 10L))
                 .thenReturn(List.of(itemRequestDtoCreated));
 
-        mvc.perform(get("/requests/all")
+        mvc.perform(get("/requests/all?from=0&size=10")
                         .header("X-Sharer-User-Id", 3L)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())

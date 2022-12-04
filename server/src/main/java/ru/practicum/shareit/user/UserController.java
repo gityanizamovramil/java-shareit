@@ -7,7 +7,6 @@ import ru.practicum.shareit.user.exception.DuplicateEmailException;
 import ru.practicum.shareit.user.exception.UserNotFoundException;
 import ru.practicum.shareit.user.exception.ValidationException;
 
-import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -22,12 +21,13 @@ public class UserController {
     }
 
     @PostMapping
-    public UserDto create(@Valid @RequestBody UserDto userDto) throws ValidationException, DuplicateEmailException {
+    public UserDto create(@RequestBody UserDto userDto) throws ValidationException, DuplicateEmailException {
         return userService.create(userDto);
     }
 
     @PatchMapping("/{userId}")
-    public UserDto update(@PathVariable Long userId, @RequestBody UserDto userDto
+    public UserDto update(@PathVariable Long userId,
+                          @RequestBody UserDto userDto
     ) throws UserNotFoundException, ValidationException, DuplicateEmailException {
         return userService.update(userId, userDto);
     }

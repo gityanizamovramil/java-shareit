@@ -155,7 +155,7 @@ class ItemControllerTest {
         when(itemService.get(1L, 0L, 10L))
                 .thenReturn(List.of(itemDtoUpdated));
 
-        mvc.perform(get("/items/")
+        mvc.perform(get("/items?from=0&size=10")
                         .header("X-Sharer-User-Id", 1L)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -171,7 +171,7 @@ class ItemControllerTest {
         when(itemService.search(1L, "update", 0L, 10L))
                 .thenReturn(List.of(itemDtoUpdated));
 
-        mvc.perform(get("/items/search?text=update")
+        mvc.perform(get("/items/search?text=update&from=0&size=10")
                         .header("X-Sharer-User-Id", 1L)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
