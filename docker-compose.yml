@@ -13,7 +13,7 @@ services:
       #- TZ=Europe/Moscow
 
   server:
-    build: server
+    build: server/shareit-server-business
     image: server
     container_name: shareit-server
     ports:
